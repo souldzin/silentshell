@@ -30,4 +30,4 @@ jobs:
         run: |
           mkdir /home/runner/.claude
           touch /home/runner/.claude.json
-          ./tests/test-environment.sh
+          ./tests/test-all.sh
