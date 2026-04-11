@@ -27,4 +27,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Run tests
-        run: ./tests/test-environment.sh
+        run: |
+          mkdir /home/runner/.claude
+          touch /home/runner/.claude.json
+          ./tests/test-environment.sh
