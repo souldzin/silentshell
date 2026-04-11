@@ -1,0 +1,18 @@
+#!/bin/sh
+# Integration test: verify we're running as mary, not root.
+
+set -e
+
+CURRENT_USER=$(whoami)
+
+if [ "$CURRENT_USER" = "root" ]; then
+  echo "[FAIL]: running as root — container should run as mary"
+  exit 1
+fi
+
+if [ "$CURRENT_USER" != "mary" ]; then
+  echo "[FAIL]: running as '$CURRENT_USER' — expected mary"
+  exit 1
+fi
+
+echo "[OK]: running as mary"
