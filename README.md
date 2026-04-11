@@ -123,6 +123,14 @@ Two Dockerfile templates are bundled in `config/`. `silentshell init` copies the
 
 ## Running tests
 
+To run all tests at once:
+
+```bash
+./tests/test-all.sh
+```
+
+This runs both the non-Docker and Docker tests described below.
+
 **Init snapshot tests** (no Docker required):
 
 ```bash
