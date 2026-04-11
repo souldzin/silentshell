@@ -59,7 +59,6 @@ silentshell start [options] [project_path] [-- agent_args...]
 | ------------------ | ---------------------------------------------------------------- |
 | `project_path`     | Directory to mount as `/project` (defaults to current directory) |
 | `--build`          | Force rebuild of the Docker image                                |
-| `--shell`          | Start a bash shell instead of the agent                          |
 | `--exec CMD`       | Run a specific command non-interactively                         |
 | `--no-interactive` | Disable TTY allocation                                           |
 | `--no-setup`       | Skip the setup script defined in `.silentshell.toml`             |
@@ -71,7 +70,7 @@ silentshell start [options] [project_path] [-- agent_args...]
 silentshell start                                  # mount current directory
 silentshell start ~/my-project                     # mount a specific project
 silentshell start --build ~/my-project             # rebuild image first
-silentshell start --shell ~/my-project             # drop into a shell
+silentshell start --exec /bin/sh ~/my-project      # drop into a shell
 silentshell start ~/my-project -- --resume         # pass flags to the agent
 silentshell start --no-interactive --exec 'echo hello' ~/my-project
 ```
