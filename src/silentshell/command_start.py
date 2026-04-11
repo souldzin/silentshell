@@ -22,7 +22,7 @@ def build_parser(subparsers) -> None:
             f"  {SCRIPT_NAME} start                                # Mount current directory\n"
             f"  {SCRIPT_NAME} start ~/my-project                   # Mount specific project\n"
             f"  {SCRIPT_NAME} start --build ~/project              # Rebuild image and mount project\n"
-            f"  {SCRIPT_NAME} start --shell ~/project              # Start shell in container\n"
+            f"  {SCRIPT_NAME} start --exec /bin/sh ~/project       # Start shell in container\n"
             f"  {SCRIPT_NAME} start ~/project -- --model gpt-4     # Pass --model gpt-4 to the cmd\n"
             f"  {SCRIPT_NAME} start --no-interactive --exec 'echo hello' ~/project"
         ),
@@ -36,11 +36,6 @@ def build_parser(subparsers) -> None:
     )
     parser.add_argument(
         "--build", action="store_true", help="Force rebuild of Docker image"
-    )
-    parser.add_argument(
-        "--shell",
-        action="store_true",
-        help="Start bash shell instead of the image's cmd",
     )
     parser.add_argument(
         "--exec",
@@ -148,12 +143,13 @@ def get_ignore_path_args(
 def get_docker_cmd(args: argparse.Namespace, config: Config) -> list[str]:
     image_cmd = docker.get_cmd_for_image(config.container.image_name)
 
+    should_run_setup = config.setup_script and not args.no_setup
+
     if getattr(args, "exec", None):
         main_cmd = args.exec
         print(f"* Executing: {args.exec}")
-    elif args.shell:
-        main_cmd = "bash"
-        print("* Starting interactive shell...")
+    elif not args.cmd_args and not should_run_setup:
+        return []
     else:
         main_cmd = " ".join([*image_cmd, *(shlex.quote(arg) for arg in args.cmd_args)])
         if args.cmd_args:
@@ -161,13 +157,13 @@ def get_docker_cmd(args: argparse.Namespace, config: Config) -> list[str]:
         else:
             print("* Starting silentshell...")
 
-    if config.setup_script and not args.no_setup:
+    if should_run_setup:
         print(f"* Setup command: {config.setup_script}")
         full_cmd = f"{config.setup_script} && {main_cmd}"
     else:
         full_cmd = main_cmd
 
-    return ["bash", "-c", full_cmd]
+    return ["sh", "-c", full_cmd]
 
 
 def get_env_args(config: Config) -> list[str]:
@@ -201,7 +197,9 @@ def run_start(args: argparse.Namespace) -> None:
             "Mounting your home directory (or a parent) into the container can cause "
             "file locks, inotify storms, and freeze running programs."
         )
-        print("Please run from a specific project directory, or pass one as an argument.")
+        print(
+            "Please run from a specific project directory, or pass one as an argument."
+        )
         sys.exit(1)
 
     if project_path == Path("/"):
