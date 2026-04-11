@@ -6,7 +6,8 @@ from pathlib import Path
 
 from .constants import CONFIG_TOML_NAME, SCRIPT_DIR, SCRIPT_NAME
 
-TEMPLATES = ["claude", "pi"]
+TEMPLATES = ["example", "claude", "pi"]
+DEFAULT_TEMPLATE = "example"
 
 
 def build_parser(subparsers) -> None:
@@ -116,7 +117,7 @@ def run_init(args: argparse.Namespace) -> None:
     print(f"Initialising silentshell in {project_path}\n")
 
     # --- Template ---
-    template = _prompt_choice("Which agent template?", TEMPLATES, default="claude")
+    template = _prompt_choice("Which agent template?", TEMPLATES, default=DEFAULT_TEMPLATE)
 
     # --- Python project ---
     is_python = _prompt_yes_no("Is this a Python project?", default=False)
@@ -153,4 +154,10 @@ def run_init(args: argparse.Namespace) -> None:
     config_file.write_text(toml_content)
     print(f"* Created {CONFIG_TOML_NAME}")
 
-    print(f"\nAll set! Run 'silentshell start' to launch your agent.")
+    print(f"\nNext steps:")
+    if template == "example":
+        print(f"  1. Edit {dockerfile_ref} to add your dependencies and set a CMD")
+        print(f"     (run 'silentshell dockerfile claude' or 'silentshell dockerfile pi' for working examples)")
+    else:
+        print(f"  1. Review {dockerfile_ref} and customise as needed")
+    print(f"  2. Run 'silentshell start --build' to build the image and launch your agent")

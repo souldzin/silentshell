@@ -13,20 +13,6 @@ except ModuleNotFoundError:  # Python < 3.11
         tomllib = None  # type: ignore[assignment]
 
 
-class ConfigError(Exception):
-    _message: str
-
-    def __init__(self, message: str):
-        super().__init__(message)
-
-    @property
-    def message(self) -> str:
-        return self._message
-
-    def __str__(self):
-        return f"[ConfigError] {self.message}"
-
-
 @dataclass(frozen=True)
 class ConfigContext:
     project_path: Path

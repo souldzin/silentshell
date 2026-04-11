@@ -75,6 +75,33 @@ class StartContainerExecutionStrategy(ExecutionStrategy):
 
 
 @dataclass(frozen=True)
+class AttachExecutionStrategy(ExecutionStrategy):
+    container_name: str
+    image_name: str
+
+    def execute(self, run_args: list[str]) -> CompletedProcessAdapter:
+        interactive = "-i" in run_args or "--interactive" in run_args
+        tty = "-t" in run_args or "--tty" in run_args
+
+        try:
+            idx = run_args.index(self.image_name)
+            cmd = run_args[idx + 1 :]
+        except ValueError:
+            cmd = []
+
+        flags = []
+        if interactive:
+            flags.append("-i")
+        if tty:
+            flags.append("-t")
+
+        print(f"* Attaching to running container ({self.container_name})...")
+        result = docker.exec_container(self.container_name, flags, cmd)
+
+        return DefaultCompletedProcess(result)
+
+
+@dataclass(frozen=True)
 class RemoveContainersExecutionStrategy(ExecutionStrategy):
     containers_to_remove: list[str]
 
@@ -146,7 +173,12 @@ def get_execution_strategy(config: Config, run_hash: str) -> ExecutionStrategy:
     if not container:
         result = result.add(CreateContainerExecutionStrategy(container_name))
     elif container.state == "running":
-        result = result.add(NoNameExecutionStrategy())
+        result = result.add(
+            AttachExecutionStrategy(
+                container_name=container_name,
+                image_name=config.container.image_name,
+            )
+        )
     else:
         result = result.add(StartContainerExecutionStrategy(container_name))
 
