@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Integration test: starts a silentshell container for THIS project
-# (via start.sh) and runs the agent test suite inside it.
+# (via silentshell.sh) and runs the agent test suite inside it.
 #
-# This goes through the full start.sh code path, so it
+# This goes through the full silentshell.sh code path, so it
 # tests the actual container setup — mounts, ignore-paths, user, etc.
 #
 # Usage:
@@ -20,12 +20,12 @@ if [[ "${1:-}" == "--build" ]]; then
   BUILD_ARG="--build"
 fi
 
-# --- Run tests via start.sh ------------------------------------------------
+# --- Run tests via silentshell.sh ------------------------------------------------
 echo "* Running agent integration tests..."
 
 TEST_CMD='for t in /project/tests/agent/test-*.sh; do echo "--- $t ---"; sh "$t"; done'
 
-OUTPUT=$("$PROJECT_DIR/start.sh" start $BUILD_ARG --no-interactive --exec "$TEST_CMD" "$PROJECT_DIR" 2>&1) || true
+OUTPUT=$("$PROJECT_DIR/silentshell.sh" start $BUILD_ARG --no-interactive --exec "$TEST_CMD" "$PROJECT_DIR" 2>&1) || true
 
 echo "$OUTPUT"
 

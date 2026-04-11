@@ -17,10 +17,10 @@ A thin wrapper that launches a coding agent inside a Docker container with your 
    git clone https://github.com/souldzin/silentshell.git
    ```
 
-2. Add a symlink to `start.sh` somewhere on your `PATH` (e.g. `/usr/local/bin`):
+2. Add a symlink to `silentshell.sh` somewhere on your `PATH` (e.g. `/usr/local/bin`):
 
    ```bash
-   ln -s /path/to/silentshell/start.sh /usr/local/bin/silentshell
+   ln -s /path/to/silentshell/silentshell.sh /usr/local/bin/silentshell
    ```
 
 3. Run `silentshell --help` to verify installation.
@@ -41,6 +41,7 @@ silentshell init ~/my-project   # init in a specific directory
 ```
 
 The wizard will ask for:
+
 - **Agent template** — `claude` (Claude Code) or `pi` (pi coding agent)
 - **Python project?** — adds `.venv` to `ignore-paths` and `PYTHONDONTWRITEBYTECODE` to env
 - **Container/image name** — defaults to the project folder name
@@ -54,15 +55,15 @@ Launch the agent container. Requires a `.silentshell.toml` in the project direct
 silentshell start [options] [project_path] [-- agent_args...]
 ```
 
-| Flag | Description |
-|---|---|
-| `project_path` | Directory to mount as `/project` (defaults to current directory) |
-| `--build` | Force rebuild of the Docker image |
-| `--shell` | Start a bash shell instead of the agent |
-| `--exec CMD` | Run a specific command non-interactively |
-| `--no-interactive` | Disable TTY allocation |
-| `--no-setup` | Skip the setup script defined in `.silentshell.toml` |
-| `--` | Everything after this is forwarded to the agent |
+| Flag               | Description                                                      |
+| ------------------ | ---------------------------------------------------------------- |
+| `project_path`     | Directory to mount as `/project` (defaults to current directory) |
+| `--build`          | Force rebuild of the Docker image                                |
+| `--shell`          | Start a bash shell instead of the agent                          |
+| `--exec CMD`       | Run a specific command non-interactively                         |
+| `--no-interactive` | Disable TTY allocation                                           |
+| `--no-setup`       | Skip the setup script defined in `.silentshell.toml`             |
+| `--`               | Everything after this is forwarded to the agent                  |
 
 **Examples:**
 
@@ -115,10 +116,10 @@ If `container.name` is set, silentshell reuses the container across runs (creati
 
 Two Dockerfile templates are bundled in `config/`. `silentshell init` copies the appropriate one into your project:
 
-| Template | Agent |
-|---|---|
-| `config/claude.Dockerfile` | [Claude Code](https://claude.ai/code) |
-| `config/pi.Dockerfile` | [pi coding agent](https://github.com/mariozechner/pi) |
+| Template                   | Agent                                                 |
+| -------------------------- | ----------------------------------------------------- |
+| `config/claude.Dockerfile` | [Claude Code](https://claude.ai/code)                 |
+| `config/pi.Dockerfile`     | [pi coding agent](https://github.com/mariozechner/pi) |
 
 ## Running tests
 

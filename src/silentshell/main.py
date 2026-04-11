@@ -27,8 +27,7 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.command is None:
-        parser.print_help()
-        sys.exit(1)
+        args = parser.parse_args(["start"] + sys.argv[1:])
 
     if args.command == "start":
         command_start.run_start(args)
