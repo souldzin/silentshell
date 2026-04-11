@@ -4,7 +4,7 @@
 
 set -e
 
-MOUNT_OPTS=$(mount | grep "/project/.test-ignore-paths" || true)
+MOUNT_OPTS=$(mount | grep "/project/tmp/.test-ignore-paths" || true)
 
 if [ -z "$MOUNT_OPTS" ]; then
   echo "[FAIL]: /project/.test-ignore-paths is not a tmpfs mount"
@@ -17,4 +17,10 @@ if echo "$MOUNT_OPTS" | grep -q "noexec"; then
   exit 1
 fi
 
-echo "[OK]: tmpfs mount allows exec"
+if [ -n "$(ls -A /project/tmp/.test-ignore-paths 2>/dev/null)" ]; then
+  echo "[FAIL]: tmpfs mount is not empty — unexpected files present"
+  ls -A /project/tmp/.test-ignore-paths
+  exit 1
+fi
+
+echo "[OK]: tmpfs mount allows exec and is empty"

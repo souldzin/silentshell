@@ -1,5 +1,5 @@
 setup = "./tests/agent-setup.sh"
-ignore-paths = [".test-ignore-paths", ".venv"]
+ignore-paths = ["tmp/.test-ignore-paths", ".venv"]
 
 [container]
 name = "silentshell"

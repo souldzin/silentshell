@@ -6,8 +6,8 @@
 # tests the actual container setup — mounts, ignore-paths, user, etc.
 #
 # Usage:
-#   ./tests/test-agent-integration.sh          # uses existing image
-#   ./tests/test-agent-integration.sh --build  # rebuilds image first
+#   ./tests/test-environment.sh          # uses existing image
+#   ./tests/test-environment.sh --build  # rebuilds image first
 
 set -euo pipefail
 
@@ -20,10 +20,17 @@ if [[ "${1:-}" == "--build" ]]; then
   BUILD_ARG="--build"
 fi
 
-# --- Run tests via silentshell.sh ------------------------------------------------
-echo "* Running agent integration tests..."
+# --- Setup local env before starting environment -----------------------------
+# NOTE: We want to test the behavior of .test-ignore-paths so let's write to
+# it from this environment and then assert it is empty in the otherworld.
+rm -rf ${PROJECT_DIR}/tmp/.test-ignore-paths
+mkdir -p ${PROJECT_DIR}/tmp/.test-ignore-paths
+echo "Hello World" >${PROJECT_DIR}/tmp/.test-ignore-paths/hello.md
 
-TEST_CMD='for t in /project/tests/agent/test-*.sh; do echo "--- $t ---"; sh "$t"; done'
+# --- Run tests via silentshell.sh --------------------------------------------
+echo "* Running environment integration tests..."
+
+TEST_CMD='for t in /project/tests/environment/test-*.sh; do echo "--- $t ---"; sh "$t"; done'
 
 OUTPUT=$("$PROJECT_DIR/silentshell.sh" start $BUILD_ARG --no-interactive --exec "$TEST_CMD" "$PROJECT_DIR" 2>&1) || true
 
