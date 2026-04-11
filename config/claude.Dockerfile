@@ -1,5 +1,13 @@
-# Dockerfile for claude coding agent
-FROM node:20-slim
+# =============================================================================
+# silentshell Dockerfile — Claude Code agent
+# =============================================================================
+# This file was copied into your project by 'silentshell init'. It is yours
+# to modify — add system packages, language runtimes, dotfiles, whatever your
+# project needs. The sections marked IMPORTANT below must stay consistent with
+# your .silentshell.toml.
+# =============================================================================
+
+FROM node:22-slim
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -12,19 +20,24 @@ RUN apt-get update && apt-get install -y \
 # Install mise (polyglot tool version manager)
 RUN curl https://mise.run | MISE_INSTALL_PATH=/usr/local/bin/mise sh
 
-# Create a non-root user
+# =============================================================================
+# IMPORTANT: the user here must match image_user in your .silentshell.toml.
+# The UID/GID are used for tmpfs mounts and volume ownership.
+# =============================================================================
 RUN useradd -m -s /bin/bash mary && \
     mkdir -p /home/mary/.claude && \
     chown -R mary:mary /home/mary
 
-# Switch to non-root user
+# Switch to non-root user before installing user-scoped tools
 USER mary
 
 # Install claude code
 RUN curl -fsSL https://claude.ai/install.sh | bash
 ENV PATH="/home/mary/.local/bin:$PATH"
 
-# Set up the project mount point
+# =============================================================================
+# IMPORTANT: silentshell mounts your project at /project. Do not change this.
+# =============================================================================
 WORKDIR /project
 
 # Default command - run pi in interactive mode

@@ -74,25 +74,25 @@ def get_container_uid_gid(image: str, user: str) -> tuple[int, int]:
     """Query the UID and GID of *user* inside the Docker *image*."""
     try:
         out = subprocess.check_output(
-            ["docker", "run", "--rm", image, "id", "-u", user],
+            # Use $1 to avoid shell-injecting the username
+            [
+                "docker",
+                "run",
+                "--rm",
+                image,
+                "sh",
+                "-c",
+                'id -u "$1" && id -g "$1"',
+                "--",
+                user,
+            ],
             stderr=subprocess.DEVNULL,
             text=True,
         ).strip()
-        uid = int(out)
+        uid_str, gid_str = out.splitlines()
+        return int(uid_str), int(gid_str)
     except (subprocess.CalledProcessError, FileNotFoundError, ValueError):
-        uid = 1000
-
-    try:
-        out = subprocess.check_output(
-            ["docker", "run", "--rm", image, "id", "-g", user],
-            stderr=subprocess.DEVNULL,
-            text=True,
-        ).strip()
-        gid = int(out)
-    except (subprocess.CalledProcessError, FileNotFoundError, ValueError):
-        gid = 1000
-
-    return uid, gid
+        return 1000, 1000
 
 
 def build_image(image_name: str, dockerfile: str, context_dir: str):
@@ -208,3 +208,9 @@ def start_container(
         args.append("-i")
 
     return subprocess.run(["docker", "start", *args, container_name])
+
+
+def exec_container(
+    container_name: str, flags: list[str], cmd: list[str]
+) -> subprocess.CompletedProcess:
+    return subprocess.run(["docker", "exec", *flags, container_name, *cmd])
