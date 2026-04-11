@@ -5,10 +5,10 @@
 # running 'silentshell start --build'.
 #
 # Steps to get started:
-#   1. Choose a base image that suits your stack (e.g. node:20-slim, python:3.12-slim)
+#   1. Choose a base image that suits your stack (e.g. node:22-slim, python:3.12-slim)
 #   2. Install your project's system dependencies
-#   3. Install your coding agent (run 'silentshell show-dockerfile claude' or
-#      'silentshell show-dockerfile pi' for working examples)
+#   3. Install your coding agent (run 'silentshell dockerfile claude' or
+#      'silentshell dockerfile pi' for working examples)
 #   4. Set CMD to your agent's entrypoint command
 # =============================================================================
 

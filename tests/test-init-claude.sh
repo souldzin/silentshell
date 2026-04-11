@@ -17,12 +17,12 @@ rm -rf "$WORK_DIR"
 mkdir -p "$WORK_DIR"
 
 # Run init with canned inputs:
-#   template   -> claude (default, accept)
+#   template   -> claude
 #   python?    -> n
 #   name       -> myproject
 #   dockerfile -> (default, accept)
-printf "\nn\nmyproject\n\n" \
-  | PYTHONPATH="$PROJECT_DIR/src" python3 -m silentshell init "$WORK_DIR" > /dev/null
+printf "claude\nn\nmyproject\n\n" |
+  PYTHONPATH="$PROJECT_DIR/src" python3 -m silentshell init "$WORK_DIR" >/dev/null
 
 # Build a snapshot: sorted file paths + contents
 snapshot() {
@@ -37,7 +37,7 @@ snapshot() {
 ACTUAL="$(snapshot "$WORK_DIR")"
 
 if [[ ! -f "$FIXTURE" ]]; then
-  echo "$ACTUAL" > "$FIXTURE"
+  echo "$ACTUAL" >"$FIXTURE"
   echo "[OK] Fixture created: $FIXTURE"
   exit 0
 fi

@@ -5,42 +5,52 @@ image_name       = "myproject_silentshell_env"
 image_dockerfile = "./config/silentshell.Dockerfile"
 image_user       = "mary"
 
+[container.volumes]
+"~/.claude"      = "/home/mary/.claude"
+"~/.claude.json" = "/home/mary/.claude.json"
+
 === config/silentshell.Dockerfile ===
 # =============================================================================
-# silentshell example Dockerfile
+# silentshell Dockerfile — Claude Code agent
 # =============================================================================
-# This is a minimal starting point. Customise it for your project before
-# running 'silentshell start --build'.
-#
-# Steps to get started:
-#   1. Choose a base image that suits your stack (e.g. node:20-slim, python:3.12-slim)
-#   2. Install your project's system dependencies
-#   3. Install your coding agent (run 'silentshell show-dockerfile claude' or
-#      'silentshell show-dockerfile pi' for working examples)
-#   4. Set CMD to your agent's entrypoint command
+# This file was copied into your project by 'silentshell init'. It is yours
+# to modify — add system packages, language runtimes, dotfiles, whatever your
+# project needs. The sections marked IMPORTANT below must stay consistent with
+# your .silentshell.toml.
 # =============================================================================
 
-FROM alpine:3.21
+FROM node:22-slim
 
-# TODO: install system dependencies your project needs, e.g.:
-# RUN apk add --no-cache git curl bash
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    build-essential \
+    python3 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install mise (polyglot tool version manager)
+RUN curl https://mise.run | MISE_INSTALL_PATH=/usr/local/bin/mise sh
 
 # =============================================================================
-# IMPORTANT: silentshell expects a non-root user matching image_user in your
-# .silentshell.toml (default: "mary"). The UID/GID are used for tmpfs mounts
-# and volume ownership — keep this in sync with your toml.
+# IMPORTANT: the user here must match image_user in your .silentshell.toml.
+# The UID/GID are used for tmpfs mounts and volume ownership.
 # =============================================================================
-RUN adduser -D -s /bin/sh mary
+RUN useradd -m -s /bin/bash mary && \
+    mkdir -p /home/mary/.claude && \
+    chown -R mary:mary /home/mary
 
-# TODO: install your coding agent here
-
-# Switch to the non-root user before setting WORKDIR
+# Switch to non-root user before installing user-scoped tools
 USER mary
+
+# Install claude code
+RUN curl -fsSL https://claude.ai/install.sh | bash
+ENV PATH="/home/mary/.local/bin:$PATH"
 
 # =============================================================================
 # IMPORTANT: silentshell mounts your project at /project. Do not change this.
 # =============================================================================
 WORKDIR /project
 
-# TODO: replace this with your agent's entrypoint, e.g. CMD ["claude"]
-CMD ["sh", "-c", "echo 'Please configure your silentshell Dockerfile with a CMD for your agent and rebuild with: silentshell start --build'"]
+# Default command - run pi in interactive mode
+CMD ["claude"]
