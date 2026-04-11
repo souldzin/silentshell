@@ -6,8 +6,8 @@
 # tests the actual container setup — mounts, ignore-paths, user, etc.
 #
 # Usage:
-#   ./tests/agent-integration.sh          # uses existing image
-#   ./tests/agent-integration.sh --build  # rebuilds image first
+#   ./tests/test-agent-integration.sh          # uses existing image
+#   ./tests/test-agent-integration.sh --build  # rebuilds image first
 
 set -euo pipefail
 
@@ -25,7 +25,7 @@ echo "* Running agent integration tests..."
 
 TEST_CMD='for t in /project/tests/agent/test-*.sh; do echo "--- $t ---"; sh "$t"; done'
 
-OUTPUT=$("$PROJECT_DIR/start.sh" $BUILD_ARG --no-interactive --exec "$TEST_CMD" "$PROJECT_DIR" 2>&1) || true
+OUTPUT=$("$PROJECT_DIR/start.sh" start $BUILD_ARG --no-interactive --exec "$TEST_CMD" "$PROJECT_DIR" 2>&1) || true
 
 echo "$OUTPUT"
 

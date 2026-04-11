@@ -28,7 +28,30 @@ A thin wrapper that launches a coding agent inside a Docker container with your 
 ## Usage
 
 ```
-silentshell [options] [project_path] [-- agent_args...]
+silentshell <command> [options]
+```
+
+### `init`
+
+Interactively create a `.silentshell.toml` for your project. Run this once before using `start`.
+
+```bash
+silentshell init                # init in current directory
+silentshell init ~/my-project   # init in a specific directory
+```
+
+The wizard will ask for:
+- **Agent template** — `claude` (Claude Code) or `pi` (pi coding agent)
+- **Python project?** — adds `.venv` to `ignore-paths` and `PYTHONDONTWRITEBYTECODE` to env
+- **Container/image name** — defaults to the project folder name
+- **Dockerfile path** — where to copy the Dockerfile (defaults to `./config/silentshell.Dockerfile`)
+
+### `start`
+
+Launch the agent container. Requires a `.silentshell.toml` in the project directory (run `init` first).
+
+```
+silentshell start [options] [project_path] [-- agent_args...]
 ```
 
 | Flag | Description |
@@ -44,12 +67,12 @@ silentshell [options] [project_path] [-- agent_args...]
 **Examples:**
 
 ```bash
-silentshell                                  # mount current directory
-silentshell ~/my-project                     # mount a specific project
-silentshell --build ~/my-project             # rebuild image first
-silentshell --shell ~/my-project             # drop into a shell
-silentshell ~/my-project -- --resume         # pass flags to the agent
-silentshell --no-interactive --exec 'echo hello' ~/my-project
+silentshell start                                  # mount current directory
+silentshell start ~/my-project                     # mount a specific project
+silentshell start --build ~/my-project             # rebuild image first
+silentshell start --shell ~/my-project             # drop into a shell
+silentshell start ~/my-project -- --resume         # pass flags to the agent
+silentshell start --no-interactive --exec 'echo hello' ~/my-project
 ```
 
 ## Configuration
@@ -90,18 +113,29 @@ If `container.name` is set, silentshell reuses the container across runs (creati
 
 ## Dockerfiles
 
-Two example Dockerfiles are provided in `config/`:
+Two Dockerfile templates are bundled in `config/`. `silentshell init` copies the appropriate one into your project:
 
-| File | Agent |
+| Template | Agent |
 |---|---|
 | `config/claude.Dockerfile` | [Claude Code](https://claude.ai/code) |
 | `config/pi.Dockerfile` | [pi coding agent](https://github.com/mariozechner/pi) |
 
 ## Running tests
 
+**Init snapshot tests** (no Docker required):
+
 ```bash
-./tests/agent-integration.sh          # uses existing image
-./tests/agent-integration.sh --build  # rebuilds image first
+./tests/test-init-claude.sh
+./tests/test-init-pi.sh
 ```
 
-Tests run inside the container and validate mounts, user, environment variables, tools, and the setup script.
+These run `silentshell init` against a temp directory and compare the output to committed fixture files. Delete a fixture to regenerate it.
+
+**Agent integration tests** (requires Docker):
+
+```bash
+./tests/test-agent-integration.sh          # uses existing image
+./tests/test-agent-integration.sh --build  # rebuilds image first
+```
+
+These run inside the container and validate mounts, user, environment variables, tools, and the setup script.
