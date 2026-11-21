@@ -7,8 +7,12 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  agent-tests:
+    name: test (${{ matrix.agent }})
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        agent: [claude, pi]
 
     steps:
       - uses: actions/checkout@v4
@@ -20,14 +24,29 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: config/claude.Dockerfile
+          file: config/${{ matrix.agent }}.Dockerfile
           load: true
           tags: silentshell_dev_env:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ matrix.agent }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.agent }}
 
-      - name: Run tests
+      - name: Smoke-test Claude Code
+        if: matrix.agent == 'claude'
+        run: docker run --rm silentshell_dev_env:latest claude --version
+
+      - name: Run tests with Pi
+        if: matrix.agent == 'pi'
         run: |
-          mkdir /home/runner/.claude
-          touch /home/runner/.claude.json
+          mkdir -p "$HOME/.pi"
           ./tests/test-all.sh
+
+  # Keep the required status check stable even when the matrix changes.
+  test:
+    runs-on: ubuntu-latest
+    needs: agent-tests
+    if: ${{ always() }}
+    steps:
+      - name: Require all agent tests to pass
+        env:
+          RESULT: ${{ needs.agent-tests.result }}
+        run: test "$RESULT" = success

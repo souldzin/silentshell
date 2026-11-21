@@ -5,7 +5,7 @@ set -e
 
 FAILED=0
 
-for cmd in claude node git curl python3 mise; do
+for cmd in pi node git curl python3 mise; do
   if command -v "$cmd" >/dev/null 2>&1; then
     echo "  . $cmd: $(command -v "$cmd")"
   else
@@ -19,4 +19,9 @@ if [ "$FAILED" -eq 1 ]; then
   exit 1
 fi
 
-echo "[OK]: all required tools available"
+if ! pi --version; then
+  echo "[FAIL]: Pi could not run with the config volume mounted"
+  exit 1
+fi
+
+echo "[OK]: all required tools available and Pi starts"
