@@ -1,5 +1,5 @@
 #!/bin/sh
-# Integration test: verify home directory and .claude config are accessible.
+# Integration test: verify home directory and Pi config are accessible.
 
 set -e
 
@@ -8,15 +8,15 @@ if [ ! -d "$HOME" ]; then
   exit 1
 fi
 
-if [ ! -d "$HOME/.claude" ]; then
-  echo "[FAIL]: $HOME/.claude does not exist — config volume not mounted?"
+if [ ! -d "$HOME/.pi" ]; then
+  echo "[FAIL]: $HOME/.pi does not exist — config volume not mounted?"
   exit 1
 fi
 
-if ! touch "$HOME/.claude/.test-write-$$" 2>/dev/null; then
-  echo "[FAIL]: $HOME/.claude is not writable"
+if ! touch "$HOME/.pi/.test-write-$$" 2>/dev/null; then
+  echo "[FAIL]: $HOME/.pi is not writable"
   exit 1
 fi
-rm -f "$HOME/.claude/.test-write-$$"
+rm -f "$HOME/.pi/.test-write-$$"
 
-echo "[OK]: home directory and .claude config are accessible and writable"
+echo "[OK]: home directory and .pi config are accessible and writable"

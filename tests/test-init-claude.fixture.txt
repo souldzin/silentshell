@@ -52,5 +52,5 @@ ENV PATH="/home/mary/.local/bin:$PATH"
 # =============================================================================
 WORKDIR /project
 
-# Default command - run pi in interactive mode
+# Default command - run Claude Code in interactive mode
 CMD ["claude"]

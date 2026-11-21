@@ -20,19 +20,21 @@ RUN apt-get update && apt-get install -y \
 # Install mise (polyglot tool version manager)
 RUN curl https://mise.run | MISE_INSTALL_PATH=/usr/local/bin/mise sh
 
-# Install pi coding agent globally
-RUN npm install -g @mariozechner/pi-coding-agent
-
 # =============================================================================
 # IMPORTANT: the user here must match image_user in your .silentshell.toml.
 # The UID/GID are used for tmpfs mounts and volume ownership.
 # =============================================================================
 RUN useradd -m -s /bin/bash mary && \
-    mkdir -p /home/mary/.pi && \
-    chown -R mary:mary /home/mary
+    mkdir -p /home/mary/.pi /opt/pi && \
+    chown mary:mary /home/mary/.pi /opt/pi
 
 # Switch to non-root user before installing user-scoped tools
 USER mary
+
+# Keep the managed install outside the ~/.pi bind mount. Set the agent
+# directory only for the installer so Pi still reads ~/.pi at runtime.
+ENV PATH="/opt/pi/bin:${PATH}"
+RUN curl -fsSL https://pi.dev/install.sh | PI_CODING_AGENT_DIR=/opt/pi sh && pi --version
 
 # =============================================================================
 # IMPORTANT: silentshell mounts your project at /project. Do not change this.

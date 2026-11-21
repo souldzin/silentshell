@@ -4,12 +4,11 @@ ignore-paths = ["tmp/.test-ignore-paths", ".venv"]
 [container]
 name = "silentshell"
 image_name = "silentshell_dev_env"
-image_dockerfile = "./config/claude.Dockerfile"
+image_dockerfile = "./config/pi.Dockerfile"
 image_user = "mary"
 
 [container.volumes]
-"~/.claude"="/home/mary/.claude"
-"~/.claude.json"="/home/mary/.claude.json"
+"~/.pi" = "/home/mary/.pi"
 
 [env]
 PYTHONDONTWRITEBYTECODE=1
